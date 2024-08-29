@@ -1,0 +1,22 @@
+    <!--<table class="betting-board">
+      <tr class="section">
+        <th colspan="4">Moneyline</th>
+      </tr>
+      {% for item in odds %}
+      <tr>
+        <td>{{ item['home'] }}</td>
+        {% if item["h_odds"] < 0 %}
+        <td class="text-red">{{ item['h_odds'] }}</td>
+        {% else %}
+        <td class="text-green">{{ item['h_odds'] }}</td>
+        {% endif %}
+        <td>{{ item['away'] }}</td>
+        {% if item["a_odds"] < 0 %}
+        <td class="text-red">{{ item['a_odds'] }}</td>
+        {% else %}
+        <td class="text-green">{{ item['a_odds'] }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+      {% endif %}
+    </table>-->
