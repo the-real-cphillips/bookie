@@ -1,16 +1,15 @@
-#!/usr/bin/env python3
-"""bookie
-"""
+#! /usr/bin/env python3
 import os
 import datetime
-from flask import Flask, render_template, request
-from core import bookie
+import sys
+import logging
+import requests
 
 mock_response = [
     {
         "id": "82310eaf915bd9cb9c04c7053ba5a87e",
         "sport_key": "americanfootball_ncaaf",
-        "sport_title": "NCAA Football",
+        "sport_title": "NCAA",
         "commence_time": "2024-09-02T18:11:00Z",
         "home_team": "Milwaukee Brewers",
         "away_team": "St. Louis Cardinals",
@@ -430,46 +429,103 @@ mock_response = [
     },
 ]
 
-app = Flask(__name__)
 
-
-@app.route("/mlb")
-def get_mlb_odds():
-    """get_odds"""
-    sport = "baseball_mlb"
-
+def fetch_odds(sport):
+    """fetchOdds"""
     time_now = datetime.datetime.now()
-    formatted_time = time_now.strftime("%m/%d/%Y")
-    last_refresh_time = time_now.strftime("%I:%M:%S %p")
-    odds = bookie.fetch_odds(sport)
-    parsed_odds = bookie.parse_odds_data(odds)
-    # parsed_odds = bookie.parse_odds_data(mock_response)
-    return render_template(
-        "index.html",
-        odds=parsed_odds,
-        date=formatted_time,
-        last_refresh_time=last_refresh_time,
-    )
+    formatted_date = time_now.strftime("%Y-%m-%d")
+    one_week = time_now + datetime.timedelta(days=7)
+    one_week = one_week.strftime("%Y-%m-%d")
+    api_key = os.getenv("ODDS_API_KEY")
+
+    url = f"https://api.the-odds-api.com/v4/sports/{sport}/odds"
+
+    params = {
+        "api_key": api_key,
+        "regions": "us",
+        "markets": "h2h,spreads,totals",
+        "oddsFormat": "american",
+        "bookmakers": "fanduel",
+        "commenceTimeFrom": f"{formatted_date}T23:59:59Z",
+        "commenceTimeTo": f"{one_week}T00:00:00Z",
+    }
+
+    response = requests.get(url, params=params, timeout=10)
+
+    if response.status_code != 200:
+        response.json()["message"]
+
+    return response.json()
 
 
-@app.route("/ncaaf")
-def get_ncaa_odds():
-    """get_odds"""
-    sport = "americanfootball_ncaaf"
+def parse_odds_data(json_data):
+    odds_data = []
+    count = 0
 
-    time_now = datetime.datetime.now()
-    formatted_time = time_now.strftime("%m/%d/%Y")
-    last_refresh_time = time_now.strftime("%I:%M:%S %p")
-    odds = bookie.fetch_odds(sport)
-    parsed_odds = bookie.parse_odds_data(odds)
-    # parsed_odds = bookie.parse_odds_data(mock_response)
-    return render_template(
-        "index.html",
-        odds=parsed_odds,
-        date=formatted_time,
-        last_refresh_time=last_refresh_time,
-    )
+    while count < 10:
+        for game in json_data:
+            count += 1
+            game_data = {
+                "sport": game["sport_key"],
+                "home": game["home_team"],
+                "away": game["away_team"],
+                "commence_time": game["commence_time"],
+                "moneyline": None,
+                "spreads_price": None,
+                "spreads_point": None,
+                "totals": None,
+            }
+
+            try:
+                for market in game["bookmakers"][0]["markets"]:
+                    if market["key"] == "h2h":
+                        game_data["moneyline"] = [
+                            outcome["price"] for outcome in market["outcomes"]
+                        ]
+                    elif market["key"] == "spreads":
+                        game_data["spreads_price"] = [
+                            outcome["price"] for outcome in market["outcomes"]
+                        ]
+                        game_data["spreads_point"] = [
+                            outcome["point"] for outcome in market["outcomes"]
+                        ]
+                    elif market["key"] == "totals":
+                        game_data["totals"] = [
+                            outcome["price"] for outcome in market["outcomes"]
+                        ]
+            except IndexError as err:
+                pass
+
+            odds_data.append(game_data)
+
+    return odds_data
+
+
+def main():
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler()
+    logger.addHandler(handler)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s   - %(message)s")
+    handler.setFormatter(formatter)
+    logger.setLevel(logging.DEBUG)
+
+    try:
+        sport = sys.argv[1]
+    except IndexError:
+        sport = "mock"
+
+    logger.info(sport)
+
+    if sys.argv[1] == "mock":
+        print(mock_response)
+        parsed = parse_odds_data(mock_response)
+        print(parsed)
+    elif sys.argv[1] == "live":
+        odds = fetch_odds("baseball_mlb")
+        print("bleh")
+        parsed = parse_odds_data(odds)
+        print(parsed)
 
 
 if __name__ == "__main__":
-    app.run()
+    main()
