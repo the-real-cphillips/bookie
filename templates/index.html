@@ -16,22 +16,17 @@
       href="{{ url_for('static', filename='local.css') }}"
     />
   </head>
-  <body class="container bg-dark">
+  <body class="bg-dark">
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
-    <h1 class="container orange-header">
-      {% if 'baseball_mlb' == sport %} MLB Moneyline {% elif
-      'americanfootball_nfl' == sport %} NFL Moneyline {% elif 'upcoming' ==
-      sport %} All Upcoming Sports {% endif %}
-      <br />
+    <h1 class="container text-primary" >
       Date: {{date}} <br />Last Update: {{last_refresh_time}}
-    </h1>
-    <div class="dropdown">
+    <div class="container dropdown">
       <button
-        class="btn btn-secondary dropdown-toggle"
+        class="btn btn-outline-success dropdown-toggle"
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
@@ -40,58 +35,51 @@
       </button>
       <ul class="dropdown-menu">
         <li>
-          <a class="dropdown-item" href="/?sport=baseball_mlb">MLB</a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="/?sport=americanfootball_nfl">NFL</a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="/?sport=upcoming"
-            >All Upcoming Sports</a
-          >
+          <a class="dropdown-item" href="/mlb">MLB</a>
+          <a class="dropdown-item" href="/ncaaf">NCAA Football</a>
         </li>
       </ul>
-      <form action="/" method="get">
-        <label class="orange-header">Choose a Sport:</label>
-        <select name="sport">
-          <option value=""></option>
-          <option value="baseball_mlb">MLB</option>
-          <option value="americanfootball_nfl">NFL</option>
-          <option value="upcoming">Upcoming All Sports</option>
-        </select>
-        <input type="submit" value="Submit" />  
-      </form>
-    </div>
-
-    {% if odds|length == 0 %}
-    <p class="orange-header">NO AVAILABLE ODDS</p>
-    {% else %}
-    <div class="container text-center">
-      <div class="row">
-        <div class="col">
-          <table class="betting-board">
-            <tr>
-              <th colspan="4">Moneyline</th>
-            </tr>
-            {% for item in odds %}
-            <tr>
-              <td>{{ item['home'] }}</td>
-              {% if item["h_odds"] < 0 %}
-              <td class="text-red">{{ item['h_odds'] }}</td>
+    </h1>
+    <div class="container-fluid row">
+    {% for game in odds %}
+      {% if game.moneyline is not none %}
+      <div class="card col-md-2">
+        <div class="card-header bg-success-subtle">{{ game.home }}</div>
+        <div class="card-body">
+          <table class="table table-xs">
+            <tbody>
+              <tr>
+                <th class="bg-secondary-subtle">Moneyline</th>
+              {% if game.moneyline[0] < 0 %}
+                <td class="text-danger">{{ game.moneyline[0] }}</td>
+                <td class="text-success">{{ game.moneyline[1] }}</td>
               {% else %}
-              <td class="text-green">{{ item['h_odds'] }}</td>
+                <td class="text-success">{{ game.moneyline[0] }}</td>
+                <td class="text-danger">{{ game.moneyline[1] }}</td>
               {% endif %}
-              <td>{{ item['away'] }}</td>
-              {% if item["a_odds"] < 0 %}
-              <td class="text-red">{{ item['a_odds'] }}</td>
-              {% else %}
-              <td class="text-green">{{ item['a_odds'] }}</td>
-              {% endif %}
-            </tr>
-            {% endfor %} {% endif %}
+              </tr>
+              <tr>
+                <th class="bg-secondary-subtle">Spread Price</th>
+                <td>{{ game.spreads_point[0] }}</td>
+                <td>{{ game.spreads_point[1] }}</td>
+              </tr>
+              <tr>
+                <th class="bg-secondary-subtle">Spread Points</th>
+                <td>{{ game.spreads_price[0] }}</td>
+                <td>{{ game.spreads_price[1] }}</td>
+              </tr>
+              <tr>
+                <th class="bg-secondary-subtle">Total</th>
+                <td>{{ game.totals[0] }}</td>
+                <td>{{ game.totals[1] }}</td>
+              </tr>
+            </tbody>
           </table>
         </div>
+        <div class="card-footer bg-danger-subtle">{{ game.away }}</div>
       </div>
+      {% endif %}
+    {% endfor %}
     </div>
   </body>
 </html>
