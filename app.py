@@ -471,5 +471,24 @@ def get_ncaa_odds():
     )
 
 
+@app.route("/nfl")
+def get_nfl_odds():
+    """get_odds"""
+    sport = "americanfootball_nfl"
+
+    time_now = datetime.datetime.now()
+    formatted_time = time_now.strftime("%m/%d/%Y")
+    last_refresh_time = time_now.strftime("%I:%M:%S %p")
+    odds = bookie.fetch_odds(sport)
+    parsed_odds = bookie.parse_odds_data(odds)
+    # parsed_odds = bookie.parse_odds_data(mock_response)
+    return render_template(
+        "index.html",
+        odds=parsed_odds,
+        date=formatted_time,
+        last_refresh_time=last_refresh_time,
+    )
+
+
 if __name__ == "__main__":
     app.run()
