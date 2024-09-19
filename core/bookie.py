@@ -8,13 +8,12 @@ from utils import mock
 
 mock_response = mock.mock_response
 
-def fetch_odds(sport):
+def fetch_odds(api_key, sport):
     """fetchOdds"""
     time_now = datetime.datetime.now()
     formatted_date = time_now.strftime("%Y-%m-%d")
     one_week = time_now + datetime.timedelta(days=7)
     one_week = one_week.strftime("%Y-%m-%d")
-    api_key = os.getenv("ODDS_API_KEY")
 
     url = f"https://api.the-odds-api.com/v4/sports/{sport}/odds"
 
