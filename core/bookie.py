@@ -4,9 +4,7 @@ import datetime
 import sys
 import logging
 import requests
-from utils import mock
 
-mock_response = mock.mock_response
 
 def fetch_odds(api_key, sport):
     """fetchOdds"""
@@ -30,7 +28,7 @@ def fetch_odds(api_key, sport):
     response = requests.get(url, params=params, timeout=10)
 
     if response.status_code != 200:
-        response.json()["message"]
+        return response.json()["message"]
 
     return response.json()
 
@@ -70,7 +68,7 @@ def parse_odds_data(json_data):
                         game_data["totals"] = [
                             outcome["price"] for outcome in market["outcomes"]
                         ]
-            except IndexError as err:
+            except IndexError:
                 pass
 
             odds_data.append(game_data)
@@ -86,21 +84,14 @@ def main():
     handler.setFormatter(formatter)
     logger.setLevel(logging.DEBUG)
 
-    try:
-        sport = sys.argv[1]
-    except IndexError:
-        sport = "mock"
+    sport = sys.argv[1]
 
     logger.info(sport)
 
-    if sys.argv[1] == "mock":
-        print(mock_response)
-        parsed = parse_odds_data(mock_response)
-        print(parsed)
-    elif sys.argv[1] == "live":
-        odds = fetch_odds("baseball_mlb")
-        parsed = parse_odds_data(odds)
-        print(parsed)
+    api_key = os.getenv("ODDS_API_KEY")
+    odds = fetch_odds(api_key, "baseball_mlb")
+    parsed = parse_odds_data(odds)
+    print(parsed)
 
 
 if __name__ == "__main__":
