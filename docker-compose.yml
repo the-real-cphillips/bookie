@@ -1,0 +1,8 @@
+services:
+  bookie:
+    build: .
+    image: bookie:latest
+    ports:
+      - "${FLASK_RUN_PORT}:${FLASK_RUN_PORT}"
+    env_file:
+      - .env
