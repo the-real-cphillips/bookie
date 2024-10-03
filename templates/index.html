@@ -28,7 +28,7 @@
       <div class="row">
         <div class="col-md-9">
           <h1 class="container text-primary display-6" >
-            <strong>Date:</strong> {{date}} <br /><strong>Last Update:</strong> {{last_refresh_time}} <br /> <strong>Sport:</strong> {{title}}
+            <strong>Date:</strong> {{date}} <br /><strong>Last Update:</strong> {{last_refresh_time}} <br /> <strong>Sport:</strong> <img src="/static/{{ logo }}" alt="{{ title }} Logo" style="max-width: 49px;"> {{title}}
           <div class="container dropdown">
             <button
               class="btn btn-outline-success dropdown-toggle"
@@ -40,14 +40,16 @@
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="/mlb">MLB</a>
-                <a class="dropdown-item" href="/ncaaf">NCAA Football</a>
-                <a class="dropdown-item" href="/nfl">NFL Football</a>
+                <a class="dropdown-item" href="/mlb"><img src="/static/mlb.jpg" alt="MLB Baseball Logo" style="max-width: 20px;"> MLB</a>
+                <a class="dropdown-item" href="/nba"><img src="/static/nba.png" alt="NBA Basketball Logo" style="max-width: 20px;"> NBA</a>
+                <a class="dropdown-item" href="/ncaaf"><img src="/static/ncaa.png" alt="NCAA Football Logo" style="max-width: 20px;"> NCAA</a>
+                <a class="dropdown-item" href="/nfl"><img src="/static/nfl.png" alt="NFL Football Logo" style="max-width: 20px;"> NFL</a>
+                <a class="dropdown-item" href="/nhl"><img src="/static/nhl.png" alt="NHL Hockey Logo" style="max-width: 20px;"> NHL</a>
               </li>
             </ul>
           </h1>
         </div>
-        <div class="col">
+        <div class="col-md-3">
           <div class="col-md-4 d-flex justify-content-end align-items-start">
             <img class="img-fluid" src='static/rev-logo.webp'>
           </div>
@@ -57,7 +59,7 @@
     <div class="container-fluid row g-1">
     {% for game in odds %}
       {% if game.moneyline is not none %}
-      <div class="card col-md-2 fs-4 g-1">
+      <div class="card col-md-3 mb-3">
         <div class="card-header bg-success-subtle"><strong>{{ game.home }}</strong></div>
         <div class="card-body">
           <table class="table table-dark table-xs fs-5">
