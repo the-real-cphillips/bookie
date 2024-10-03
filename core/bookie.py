@@ -6,8 +6,11 @@ import logging
 import requests
 
 # Configure logging for better error reporting
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 def fetch_odds(api_key, sport):
     """Fetches odds data from the Odds API."""
@@ -38,7 +41,7 @@ def fetch_odds(api_key, sport):
 def parse_odds_data(json_data):
     """Parses the JSON response into a list of game dictionaries."""
     if json_data is None:
-        return [] #Handle case where fetch_odds returns None
+        return []  # Handle case where fetch_odds returns None
 
     odds_data = []
     for game in json_data:
@@ -56,15 +59,23 @@ def parse_odds_data(json_data):
         try:
             for market in game["bookmakers"][0]["markets"]:
                 if market["key"] == "h2h":
-                    game_data["moneyline"] = [outcome["price"] for outcome in market["outcomes"]]
+                    game_data["moneyline"] = [
+                        outcome["price"] for outcome in market["outcomes"]
+                    ]
                 elif market["key"] == "spreads":
-                    game_data["spreads_price"] = [outcome["price"] for outcome in market["outcomes"]]
-                    game_data["spreads_point"] = [outcome["point"] for outcome in market["outcomes"]]
+                    game_data["spreads_price"] = [
+                        outcome["price"] for outcome in market["outcomes"]
+                    ]
+                    game_data["spreads_point"] = [
+                        outcome["point"] for outcome in market["outcomes"]
+                    ]
                 elif market["key"] == "totals":
-                    game_data["totals"] = [outcome["price"] for outcome in market["outcomes"]]
+                    game_data["totals"] = [
+                        outcome["price"] for outcome in market["outcomes"]
+                    ]
         except (IndexError, KeyError) as e:
             logger.warning(f"Error parsing game data: {e}, skipping game.")
-            continue #Skip to the next game if parsing fails
+            continue  # Skip to the next game if parsing fails
 
         odds_data.append(game_data)
     return odds_data
