@@ -1,7 +1,9 @@
+version: '3.7'
 services:
   bookie:
     build: .
     image: bookie:latest
+    restart: always
     ports:
       - "${FLASK_RUN_PORT}:${FLASK_RUN_PORT}"
     env_file:
